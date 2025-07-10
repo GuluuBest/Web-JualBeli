@@ -1,5 +1,6 @@
 import HomePage from "./pages/HomePage";
 import LoginPage from "./pages/LoginPage";
+import RegisterPage from "./pages/RegisterPage";
 import ProfilePage from "./pages/ProfilePage";
 import CreateListingPage from "./pages/CreateListingPage";
 import ListingDetailPage from "./pages/ListingDetailPage";
@@ -14,6 +15,7 @@ function App() {
       <Route path="/listing/:id" element={<ListingDetailPage />} />{" "}
       {/* Tambahkan rute ini */}
       <Route path="/login" element={<LoginPage />} />
+      <Route path="/register" element={<RegisterPage />} />
       <Route path="/profile" element={<ProfilePage />} />
       <Route path="/sell-account" element={<CreateListingPage />} />
       <Route path="/listing/:id/edit" element={<EditListingPage />} />{" "}

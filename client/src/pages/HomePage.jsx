@@ -1,69 +1,68 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { Link } from "react-router-dom";
-import Navbar from "../components/Navbar"; // Impor Navbar
+import Navbar from "../components/Navbar";
 
 function HomePage() {
   const [listings, setListings] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    // ... fungsi fetchListings Anda tetap sama
+    const fetchListings = async () => {
+      try {
+        const response = await axios.get("http://localhost:3001/api/listings");
+        setListings(response.data);
+      } catch (error) {
+        console.error("Gagal mengambil data:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    fetchListings();
   }, []);
 
   return (
-    <div className="bg-background min-h-screen">
-      <Navbar /> {/* Gunakan Navbar di sini */}
-      <main className="container mx-auto p-4 md:p-8">
-        <div className="text-left mb-8">
-          <h1 className="text-3xl font-bold text-text-primary">
-            Jelajahi Akun
+    <div className="min-h-screen bg-gradient-to-br from-[#f5f9ff] to-[#e3ebf7]">
+      <Navbar />
+      <div className="max-w-7xl mx-auto px-4 py-12">
+        <div className="text-center mb-12">
+          <h1 className="text-4xl font-extrabold text-blue-700">
+            Temukan Akun Impianmu
           </h1>
-          <p className="text-md text-text-secondary mt-1">
-            Temukan ribuan akun terbaik untuk game favoritmu.
+          <p className="mt-2 text-gray-600">
+            Marketplace akun game yang aman, cepat, dan terpercaya.
           </p>
         </div>
 
         {isLoading ? (
-          <div className="text-center">Loading...</div>
+          <p className="text-center text-gray-500">Loading...</p>
         ) : (
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
             {listings.map((listing) => (
               <Link
                 to={`/listing/${listing.id}`}
                 key={listing.id}
-                className="group"
+                className="bg-white rounded-xl shadow hover:shadow-lg transition duration-300 transform hover:-translate-y-1"
               >
-                {/* Desain Kartu Produk Baru */}
-                <div className="bg-surface rounded-lg shadow-md overflow-hidden transition-all duration-300 hover:shadow-xl">
-                  <div className="aspect-w-1 aspect-h-1 w-full">
-                    {listing.image_url ? (
-                      <img
-                        src={`http://localhost:3001/${listing.image_url}`}
-                        alt={listing.title}
-                        className="w-full h-40 object-cover"
-                      />
-                    ) : (
-                      <div className="w-full h-40 bg-gray-200" />
-                    )}
-                  </div>
-                  <div className="p-3">
-                    <h3 className="font-semibold text-sm text-text-primary truncate">
-                      {listing.title}
-                    </h3>
-                    <p className="text-xs text-text-secondary mt-1">
-                      {listing.category}
-                    </p>
-                    <p className="text-right font-bold text-primary mt-2">
-                      Rp {listing.price.toLocaleString("id-ID")}
-                    </p>
-                  </div>
+                <img
+                  src={`http://localhost:3001/${listing.image_url}`}
+                  alt={listing.title}
+                  className="rounded-t-xl h-48 w-full object-cover"
+                />
+                <div className="p-4">
+                  <h3 className="font-semibold text-gray-800 text-lg truncate">
+                    {listing.title}
+                  </h3>
+                  <p className="text-sm text-gray-500">{listing.category}</p>
+                  <p className="text-right text-indigo-600 font-bold mt-2">
+                    Rp {listing.price.toLocaleString("id-ID")}
+                  </p>
                 </div>
               </Link>
             ))}
           </div>
         )}
-      </main>
+      </div>
     </div>
   );
 }

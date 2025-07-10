@@ -1,12 +1,8 @@
-import React, { useState, useEffect } from "react";
-import axios from "axios";
-import { useNavigate, Link } from "react-router-dom";
-import Navbar from "../components/Navbar";
+import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 function ProfilePage() {
-  const [user, setUser] = useState(null);
-  const [myListings, setMyListings] = useState([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const [user, setUser] = useState({ username: "", email: "" });
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -16,31 +12,17 @@ function ProfilePage() {
       return;
     }
 
-    const fetchData = async () => {
-      setIsLoading(true);
-      try {
-        const [profileResponse, listingsResponse] = await Promise.all([
-          axios.get("http://localhost:3001/api/profile", {
-            headers: { Authorization: `Bearer ${token}` },
-          }),
-          axios.get("http://localhost:3001/api/my-listings", {
-            headers: { Authorization: `Bearer ${token}` },
-          }),
-        ]);
-
-        setUser(profileResponse.data.user);
-        setMyListings(listingsResponse.data);
-      } catch (error) {
-        console.error("Gagal mengambil data:", error);
-        localStorage.removeItem("token");
-        localStorage.removeItem("userId");
-        navigate("/login");
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    fetchData();
+    try {
+      const decoded = JSON.parse(atob(token.split(".")[1]));
+      setUser({
+        username: decoded.username,
+        email: decoded.email,
+      });
+    } catch (err) {
+      console.error("Token tidak valid");
+      localStorage.removeItem("token");
+      navigate("/login");
+    }
   }, [navigate]);
 
   const handleLogout = () => {
@@ -49,92 +31,33 @@ function ProfilePage() {
     navigate("/login");
   };
 
-  if (isLoading) {
-    return (
-      <div className="bg-background min-h-screen">
-        <Navbar />
-        <div className="text-center p-10">Loading...</div>
-      </div>
-    );
-  }
-
-  // Tambahkan pengecekan jika user null setelah loading selesai
-  if (!user) {
-    return (
-      <div className="bg-background min-h-screen">
-        <Navbar />
-        <div className="text-center p-10">Gagal memuat data pengguna.</div>
-      </div>
-    );
-  }
-
   return (
-    <div className="bg-background min-h-screen">
-      <Navbar />
-
-      <main className="container mx-auto p-4 md:p-8">
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
-          {/* Kolom Kiri: Info Profil */}
-          <aside className="lg:col-span-1">
-            <div className="bg-surface p-6 rounded-lg shadow-md">
-              <h2 className="text-2xl font-bold text-text-primary">
-                {user.username}
-              </h2>
-              <p className="text-sm text-text-secondary">
-                ID Pengguna: {user.id}
-              </p>
-              <hr className="my-4" />
-              <Link to="/sell-account">
-                <button className="w-full bg-primary hover:bg-secondary text-white font-bold py-2 px-4 rounded-lg transition-colors">
-                  Jual Akun Baru
-                </button>
-              </Link>
-            </div>
-          </aside>
-
-          {/* Kolom Kanan: Daftar Lapak */}
-          <section className="lg:col-span-3">
-            <h3 className="text-2xl font-bold text-text-primary mb-4">
-              Lapak Jualan Saya
-            </h3>
-            {myListings.length > 0 ? (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {myListings.map((listing) => (
-                  <div
-                    key={listing.id}
-                    className="bg-surface rounded-lg shadow-md overflow-hidden transition-all duration-300 hover:shadow-xl"
-                  >
-                    <img
-                      src={`http://localhost:3001/${listing.image_url}`}
-                      alt={listing.title}
-                      className="w-full h-40 object-cover" // Class ini yang mengatur ukuran gambar
-                    />
-                    <div className="p-4">
-                      <h4 className="font-semibold text-text-primary truncate">
-                        {listing.title}
-                      </h4>
-                      <p className="text-right font-bold text-primary mt-2">
-                        Rp {listing.price.toLocaleString("id-ID")}
-                      </p>
-                      <Link to={`/listing/${listing.id}/edit`}>
-                        <button className="w-full mt-4 text-sm bg-gray-200 hover:bg-gray-300 text-text-primary font-semibold py-1 px-3 rounded">
-                          Edit
-                        </button>
-                      </Link>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <div className="bg-surface p-6 rounded-lg shadow-md text-center">
-                <p className="text-text-secondary">
-                  Anda belum memiliki lapak jualan.
-                </p>
-              </div>
-            )}
-          </section>
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#e0e7ff] via-[#f0f4ff] to-[#dbeafe] px-4 py-12 dark:from-gray-900 dark:to-gray-800 transition-all">
+      <div className="bg-white/70 dark:bg-white/10 backdrop-blur-lg rounded-3xl shadow-xl border border-white/20 w-full max-w-md p-8 text-center">
+        <div className="mb-6">
+          <div className="w-24 h-24 mx-auto rounded-full overflow-hidden border-4 border-white shadow-lg">
+            <img
+              src={`https://api.dicebear.com/7.x/bottts/svg?seed=${user.username}`}
+              alt="Avatar"
+              className="w-full h-full object-cover"
+            />
+          </div>
         </div>
-      </main>
+
+        <h2 className="text-2xl font-extrabold text-gray-800 dark:text-white mb-2 tracking-tight">
+          {user.username || "Pengguna"}
+        </h2>
+        <p className="text-gray-600 dark:text-gray-300 mb-6 text-sm">
+          {user.email || "Email tidak ditemukan"}
+        </p>
+
+        <button
+          onClick={handleLogout}
+          className="mt-4 bg-red-500 hover:bg-red-600 text-white px-6 py-2 rounded-xl transition-all shadow-md"
+        >
+          Keluar
+        </button>
+      </div>
     </div>
   );
 }
