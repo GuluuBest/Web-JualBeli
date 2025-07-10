@@ -4,6 +4,7 @@ import ProfilePage from "./pages/ProfilePage";
 import CreateListingPage from "./pages/CreateListingPage";
 import ListingDetailPage from "./pages/ListingDetailPage";
 import EditListingPage from "./pages/EditListingPage";
+import "./index.css";
 import { Routes, Route } from "react-router-dom";
 
 function App() {
