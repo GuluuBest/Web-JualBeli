@@ -83,13 +83,22 @@ app.post("/api/register", async (req, res) => {
 });
 
 app.post("/api/login", (req, res) => {
-  const { email, password } = req.body;
-  if (!email || !password) {
-    return res.status(400).json({ message: "Email and password are required" });
+  // Ambil identifier (bisa email atau username) dan password
+  const { identifier, password } = req.body;
+  if (!identifier || !password) {
+    return res
+      .status(400)
+      .json({ message: "Username/Email and password are required" });
   }
 
-  const sql = "SELECT * FROM users WHERE email = ?";
-  db.query(sql, [email], async (err, results) => {
+  // Cek apakah identifier adalah email atau bukan
+  const isEmail = identifier.includes("@");
+
+  // Siapkan query SQL berdasarkan jenis identifier
+  const column = isEmail ? "email" : "username";
+  const sql = `SELECT * FROM users WHERE ${column} = ?`;
+
+  db.query(sql, [identifier], async (err, results) => {
     try {
       if (err) {
         console.error("Database query error:", err);

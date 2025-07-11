@@ -3,21 +3,25 @@ import axios from "axios";
 import { useNavigate, Link } from "react-router-dom";
 
 function LoginPage() {
-  const [email, setEmail] = useState("");
+  // Kita ganti state `email` menjadi `identifier` agar lebih umum
+  const [identifier, setIdentifier] = useState("");
   const [password, setPassword] = useState("");
   const navigate = useNavigate();
 
   const handleLogin = async (e) => {
     e.preventDefault();
     try {
+      // Kirim `identifier` ke back-end
       const response = await axios.post("http://localhost:3001/api/login", {
-        email,
+        identifier, // <-- Diubah
         password,
       });
+
+      // ... sisa logika setelah login berhasil (tetap sama) ...
       localStorage.setItem("token", response.data.token);
       const decoded = JSON.parse(atob(response.data.token.split(".")[1]));
       localStorage.setItem("userId", decoded.id);
-      navigate("/profile");
+      navigate("/");
     } catch (err) {
       alert(
         "Login Gagal: " + (err.response?.data?.message || "Terjadi kesalahan")
@@ -33,12 +37,15 @@ function LoginPage() {
         </h2>
         <form onSubmit={handleLogin} className="space-y-5">
           <div>
-            <label className="block text-sm text-gray-600">Email</label>
+            {/* Label dan Input diubah */}
+            <label className="block text-sm text-gray-600">
+              Username atau Email
+            </label>
             <input
-              type="email"
+              type="text" // <-- Diubah dari "email"
               className="w-full mt-1 px-4 py-2 border rounded-xl focus:ring-2 focus:ring-indigo-500"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              value={identifier}
+              onChange={(e) => setIdentifier(e.target.value)}
               required
             />
           </div>
